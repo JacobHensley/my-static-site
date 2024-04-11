@@ -10,7 +10,165 @@
   </head>
   <body>
 
+    <div class="shadow-sm progress" style="border-radius: 0px" id="progress-bar">
+    </div>
+
+    <div class="vh-100" id="cover">
+        <h1 style="font-weight: bold">Ready to test your knowledge?</h1>
+        <h2>See how many you can get correct!</h1>
+        <button type="button" class="btn btn-primary m-1 answer-btn" id="start-btn">Begin quiz</button>
+    </div>
+
+    <div class="d-flex justify-content-md-center align-items-center vh-100">
+      <div class="shadow card" style="width: 28rem; height: 14rem" id="question-card">
+        <div class="card-body row align-items-center">
+          <div class="col-md-12 text-center">
+            <h5 class="card-title" id="question-text">Question</h5>
+            <div id="answer-btns">
+              <button type="button" class="btn btn-primary m-1 answer-btn" id="answer-0-btn">Answer 1</button>
+              <button type="button" class="btn btn-primary m-1 answer-btn" id="answer-1-btn">Answer 2</button>
+              <button type="button" class="btn btn-primary m-1 answer-btn" id="answer-2-btn">Answer 3</button>
+              <button type="button" class="btn btn-primary m-1 answer-btn" id="answer-3-btn">Answer 4</button>
+              <div class="break"></div>
+              <button type="button" class="btn btn-primary m-1 mt-3 text-center" id="next-question-btn">Next question</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <footer class="navbar fixed-bottom mt-auto py-3 bg-light">
+      <div class="container">
+        <span class="text-muted">&copy This is copyright nobody!</span>
+      </div>
+    </footer>
+
     <script>
+      const questions = [
+        { 
+          question: "What is 7 * 3?", 
+          answer0: "26", answer1: "14",
+          answer2: "21", answer3: "20", 
+          correctAnswer: 2 
+        },
+        { 
+          question: "What is 10 + 3?", 
+          answer0: "11", answer1: "13",
+          answer2: "12", answer3: "14", 
+          correctAnswer: 1 
+        },
+        { 
+          question: "What is 20 / 4?", 
+          answer0: "3", answer1: "4",
+          answer2: "6", answer3: "5", 
+          correctAnswer: 3
+        },
+      ]
+
+      var correctCount = 0
+      var questionIndex = 0
+      var lastQuestion = false
+      const card = document.getElementById('question-card')
+      const nextButton = document.getElementById('next-question-btn')
+      const answerButtons = [
+        document.getElementById('answer-0-btn'),
+        document.getElementById('answer-1-btn'),
+        document.getElementById('answer-2-btn'),
+        document.getElementById('answer-3-btn'),
+      ]
+    
+      UpdateQuestion(0)
+      card.style.display = "none"
+      nextButton.style.visibility = "hidden"
+
+      function UpdateQuestion(index)
+      {
+        const question = questions[index]
+
+        var questionText = document.getElementById("question-text")
+        questionText.innerHTML = question["question"]
+
+        answerButtons[0].innerHTML = question["answer0"]
+        answerButtons[1].innerHTML = question["answer1"]
+        answerButtons[2].innerHTML = question["answer2"]
+        answerButtons[3].innerHTML = question["answer3"]
+      }
+
+      function AnswerQuestion(button, index)
+      {
+        var bar = document.getElementById("progress-bar")
+
+        var progressSize = 100 / questions.length
+        if (index == questions[questionIndex].correctAnswer)
+        {
+          correctCount += 1
+          bar.innerHTML += `<div class="progress-bar bg-success" role="progressbar" style="width: ${progressSize}%" aria-valuenow="${progressSize}" aria-valuemin="0" aria-valuemax="100"></div>`
+        }
+        else
+        {
+          bar.innerHTML += `<div class="progress-bar bg-danger" role="progressbar" style="width: ${progressSize}%" aria-valuenow="${progressSize}" aria-valuemin="0" aria-valuemax="100"></div>`
+        }
+
+        for (let i = 0; i < answerButtons.length; i++) 
+        {
+          const button = answerButtons[i]
+
+          if (i == questions[questionIndex].correctAnswer)
+            button.classList.add("btn-success")
+          else
+            button.classList.add("btn-danger")
+        }
+
+        nextButton.style.visibility = "visible"
+        SetAnswerState(false)
+      }
+
+      function SetAnswerState(state)
+      {
+        answerButtons.forEach(button => { button.disabled = !state })
+      }
+
+      nextButton.onclick = function(event)
+      {
+        if (lastQuestion)
+        {
+          document.getElementById("question-text").innerHTML = `Great job! You got ${correctCount} out of ${questions.length}.`
+          document.getElementById("answer-btns").innerHTML = ``
+          return
+        }
+
+        questionIndex += 1
+        UpdateQuestion(questionIndex)
+
+        if (questionIndex == answerButtons.length - 2)
+        {
+          nextButton.innerHTML = "Finish quiz"
+          lastQuestion = true
+        }
+
+        answerButtons.forEach(button => 
+        {
+          button.classList.remove("btn-success")
+          button.classList.remove("btn-danger")
+          button.classList.add("btn-primary")
+        })
+
+        nextButton.style.visibility = "hidden"
+        SetAnswerState(true)
+      }
+
+      answerButtons[0].onclick = function(event) { AnswerQuestion(this, 0) }
+      answerButtons[1].onclick = function(event) { AnswerQuestion(this, 1) }
+      answerButtons[2].onclick = function(event) { AnswerQuestion(this, 2) }
+      answerButtons[3].onclick = function(event) { AnswerQuestion(this, 3) }
+      
+      const startButton = document.getElementById('start-btn')
+      startButton.onclick = function(event)
+      {
+        card.style.display = "block"
+        document.getElementById('cover').style.display = "none"
+      }
+
     </script>
 
   </body>
